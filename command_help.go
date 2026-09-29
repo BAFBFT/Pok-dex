@@ -6,16 +6,15 @@ import (
 	"slices"
 )
 
-func commandHelp() error {
-	cmds := getCommands()
-	names := slices.Sorted(maps.Keys(cmds))
+func commandHelp(cfg *config) error {
+	names := slices.Sorted(maps.Keys(cfg.commands))
 	fmt.Println()
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 	fmt.Println()
 
 	for _, name := range names {
-		fmt.Printf("%s: %s\n", name, cmds[name].description)
+		fmt.Printf("%s: %s\n", name, cfg.commands[name].description)
 	}
 	return nil
 }
