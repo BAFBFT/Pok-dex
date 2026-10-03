@@ -12,6 +12,8 @@ type cliCommand struct {
 
 type config struct {
 	commands map[string]cliCommand
+	next     string
+	previous string
 }
 
 // create as a function to avoid, initialisation cycle
@@ -28,6 +30,11 @@ func getCommands() map[string]cliCommand {
 			name:        "help",
 			description: "Displays a help message",
 			callback:    commandHelp,
+		},
+		"map": {
+			name:        "map",
+			description: "Displays the names of 20 location areas in the Pokemon World",
+			callback:    commandMap,
 		},
 	}
 }
