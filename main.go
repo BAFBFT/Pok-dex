@@ -9,7 +9,8 @@ import (
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	commands := getCommands()
-	cfg := config{commands, "", ""}
+	// next should start of with the first result of the API call
+	cfg := config{commands, "https://pokeapi.co/api/v2/location-area/", ""}
 	for {
 		fmt.Print("Pokedex > ")
 		scanner.Scan()
