@@ -9,8 +9,9 @@ import (
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	commands := getCommands()
+	var param string
 	// next should start of with the first result of the API call
-	cfg := config{commands, "https://pokeapi.co/api/v2/location-area/", ""}
+	cfg := config{commands, "https://pokeapi.co/api/v2/location-area/", "", "https://pokeapi.co/api/v2/location-area/"}
 	for {
 		fmt.Print("Pokedex > ")
 		scanner.Scan()
@@ -24,7 +25,15 @@ func main() {
 			fmt.Println("Unknown command")
 			continue
 		}
-		if err := cmd.callback(&cfg); err != nil {
+
+		// check if there are params
+		if len(words) > 1 {
+			param = words[1]
+		} else {
+			param = ""
+		}
+
+		if err := cmd.callback(&cfg, param); err != nil {
 			fmt.Println(err)
 		}
 

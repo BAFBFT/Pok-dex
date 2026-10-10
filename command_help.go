@@ -1,12 +1,16 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"maps"
 	"slices"
 )
 
-func commandHelp(cfg *config) error {
+func commandHelp(cfg *config, param string) error {
+	if param != "" {
+		return errors.New("help command accepts no parameters")
+	}
 	names := slices.Sorted(maps.Keys(cfg.commands))
 	fmt.Println()
 	fmt.Println("Welcome to the Pokedex!")

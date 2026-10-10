@@ -1,10 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 )
 
-func commandMap(cfg *config) error {
+func commandMap(cfg *config, param string) error {
+	if param != "" {
+		return errors.New("map command accepts no parameters")
+	}
 	locations, err := getPokeLocations(cfg.next)
 	if err != nil {
 		return err
@@ -18,7 +22,10 @@ func commandMap(cfg *config) error {
 	return nil
 }
 
-func commandMapB(cfg *config) error {
+func commandMapB(cfg *config, param string) error {
+	if param != "" {
+		return errors.New("mapb command accepts no parameters")
+	}
 	if cfg.previous == "" {
 		fmt.Println("you're on the first page")
 		return nil

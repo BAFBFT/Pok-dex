@@ -7,13 +7,14 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(cfg *config, param string) error // all named
 }
 
 type config struct {
-	commands map[string]cliCommand
-	next     string
-	previous string
+	commands             map[string]cliCommand
+	next                 string
+	previous             string
+	locationAreaEndpoint string
 }
 
 // create as a function to avoid, initialisation cycle
@@ -40,6 +41,11 @@ func getCommands() map[string]cliCommand {
 			name:        "mapb",
 			description: "Displays the names of the previous 20 location areas in the Pokemon World",
 			callback:    commandMapB,
+		},
+		"explore": {
+			name:        "explore",
+			description: "Displays the names of all Pokémon found in a location area",
+			callback:    commandExplore,
 		},
 	}
 }
