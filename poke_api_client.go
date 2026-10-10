@@ -23,6 +23,15 @@ type pokeLocations struct {
 	Results  []pokeLocation `json:"results"`
 }
 
+// only the names are needed
+type locationArea struct {
+	PokemonEncounters []struct { // slice of pokemons
+		Pokemon struct { // struct including name field
+			Name string `json:"name"` // name field
+		} `json:"pokemon"`
+	} `json:"pokemon_encounters"`
+}
+
 func getPokeLocations(url string) (pokeLocations, error) {
 	value, ok := cache.Get(url)
 	var body []byte
@@ -55,4 +64,38 @@ func getPokeLocations(url string) (pokeLocations, error) {
 		return pokeLocations{}, err
 	}
 	return locations, nil
+}
+
+func explorePokeLocations(url string) (locationArea, error) {
+	value, ok := cache.Get(url)
+	var body []byte
+	if ok {
+		body = value
+	} else {
+		res, err := http.Get(url)
+		if err != nil {
+			return locationArea{}, err
+		}
+		// body is type []byte, need to unmarshal it
+		body, err = io.ReadAll(res.Body)
+		res.Body.Close()
+
+		if res.StatusCode > 299 {
+			log.Fatalf("Response failed with status code: %d and\nbody: %s\n", res.StatusCode, body)
+		}
+
+		if err != nil {
+			return locationArea{}, err
+		}
+
+		//store in cache if no errors
+		cache.Add(url, body)
+	}
+
+	// unmarshal into pokeLocations struct
+	var areaInfo locationArea
+	if err := json.Unmarshal(body, &areaInfo); err != nil {
+		return locationArea{}, err
+	}
+	return areaInfo, nil
 }
