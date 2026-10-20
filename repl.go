@@ -12,9 +12,12 @@ type cliCommand struct {
 
 type config struct {
 	commands             map[string]cliCommand
+	pokedex              map[string]pokemon
 	next                 string
 	previous             string
 	locationAreaEndpoint string
+	pokemonInfoEndpoint  string
+	pokemonCatchCounter  map[string]int
 }
 
 // create as a function to avoid, initialisation cycle
@@ -46,6 +49,11 @@ func getCommands() map[string]cliCommand {
 			name:        "explore",
 			description: "Displays the names of all Pokémon found in a location area",
 			callback:    commandExplore,
+		},
+		"catch": {
+			name:        "catch",
+			description: "Attempt to catch a pokemon",
+			callback:    commandCatch,
 		},
 	}
 }

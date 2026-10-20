@@ -9,9 +9,18 @@ import (
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	commands := getCommands()
+	pokedex := make(map[string]pokemon)
 	var param string
+	pokemonCatchCounter := make(map[string]int)
 	// next should start of with the first result of the API call
-	cfg := config{commands, "https://pokeapi.co/api/v2/location-area/", "", "https://pokeapi.co/api/v2/location-area/"}
+	cfg := config{commands,
+		pokedex,
+		"https://pokeapi.co/api/v2/location-area/",
+		"",
+		"https://pokeapi.co/api/v2/location-area/",
+		"https://pokeapi.co/api/v2/pokemon/",
+		pokemonCatchCounter}
+
 	for {
 		fmt.Print("Pokedex > ")
 		scanner.Scan()

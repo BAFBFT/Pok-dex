@@ -32,7 +32,12 @@ type locationArea struct {
 	} `json:"pokemon_encounters"`
 }
 
-func getPokeLocations(url string) (pokeLocations, error) {
+type pokemon struct {
+	Name           string `json:"name"`
+	BaseExperience int    `json:"base_experience"`
+}
+
+func getUrlBody(url string) ([]byte, error) {
 	value, ok := cache.Get(url)
 	var body []byte
 	if ok {
@@ -40,7 +45,7 @@ func getPokeLocations(url string) (pokeLocations, error) {
 	} else {
 		res, err := http.Get(url)
 		if err != nil {
-			return pokeLocations{}, err
+			return nil, err
 		}
 		// body is type []byte, need to unmarshal it
 		body, err = io.ReadAll(res.Body)
@@ -51,11 +56,19 @@ func getPokeLocations(url string) (pokeLocations, error) {
 		}
 
 		if err != nil {
-			return pokeLocations{}, err
+			return nil, err
 		}
 
 		//store in cache if no errors
 		cache.Add(url, body)
+	}
+	return body, nil
+}
+
+func getPokeLocations(url string) (pokeLocations, error) {
+	body, err := getUrlBody(url)
+	if err != nil {
+		return pokeLocations{}, err
 	}
 
 	// unmarshal into pokeLocations struct
@@ -67,29 +80,9 @@ func getPokeLocations(url string) (pokeLocations, error) {
 }
 
 func explorePokeLocations(url string) (locationArea, error) {
-	value, ok := cache.Get(url)
-	var body []byte
-	if ok {
-		body = value
-	} else {
-		res, err := http.Get(url)
-		if err != nil {
-			return locationArea{}, err
-		}
-		// body is type []byte, need to unmarshal it
-		body, err = io.ReadAll(res.Body)
-		res.Body.Close()
-
-		if res.StatusCode > 299 {
-			log.Fatalf("Response failed with status code: %d and\nbody: %s\n", res.StatusCode, body)
-		}
-
-		if err != nil {
-			return locationArea{}, err
-		}
-
-		//store in cache if no errors
-		cache.Add(url, body)
+	body, err := getUrlBody(url)
+	if err != nil {
+		return locationArea{}, err
 	}
 
 	// unmarshal into pokeLocations struct
@@ -98,4 +91,18 @@ func explorePokeLocations(url string) (locationArea, error) {
 		return locationArea{}, err
 	}
 	return areaInfo, nil
+}
+
+func getPokemonInfo(url string) (pokemon, error) {
+	body, err := getUrlBody(url)
+	if err != nil {
+		return pokemon{}, err
+	}
+
+	// unmarshal into pokeLocations struct
+	var pokemonInfo pokemon
+	if err := json.Unmarshal(body, &pokemonInfo); err != nil {
+		return pokemon{}, err
+	}
+	return pokemonInfo, nil
 }
