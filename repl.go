@@ -57,8 +57,13 @@ func getCommands() map[string]cliCommand {
 		},
 		"inspect": {
 			name:        "inspect",
-			description: "View details of caught pokemon.",
+			description: "View details of caught pokemon",
 			callback:    commandInspect,
+		},
+		"pokedex": {
+			name:        "pokedex",
+			description: "Display all pokemon in the pokedex",
+			callback:    commandPokedex,
 		},
 	}
 }
