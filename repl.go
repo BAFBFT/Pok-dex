@@ -1,28 +1,70 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
+	"os"
 	"strings"
+
+	"pokedex/internal/pokeapi"
 )
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(cfg *config, param string) error // all named
+	callback    func(cfg *config, param string) error
 }
 
 type config struct {
-	commands             map[string]cliCommand
-	pokedex              map[string]pokemon
-	next                 string
-	previous             string
-	locationAreaEndpoint string
-	pokemonInfoEndpoint  string
-	pokemonCatchCounter  map[string]int
+	pokeapiClient       *pokeapi.Client
+	pokedex             map[string]pokeapi.Pokemon
+	pokemonCatchCounter map[string]int
+	nextLocationsURL    *string
+	prevLocationsURL    *string
 }
 
-// create as a function to avoid, initialisation cycle
-// if it was a variable, help command would need commandHelp function to be initialised
-// commandHelp function would need to read var commands to be initialised
+func startRepl(cfg *config) {
+	scanner := bufio.NewScanner(os.Stdin)
+	commands := getCommands()
+
+	for {
+		fmt.Print("Pokedex > ")
+		if !scanner.Scan() {
+			// EOF (Ctrl-D) or read error
+			if err := scanner.Err(); err != nil {
+				fmt.Println(err)
+			}
+			return
+		}
+
+		words := cleanInput(scanner.Text())
+		if len(words) == 0 {
+			continue
+		}
+
+		cmd, ok := commands[words[0]]
+		if !ok {
+			fmt.Println("Unknown command")
+			continue
+		}
+
+		param := ""
+		if len(words) > 1 {
+			param = words[1]
+		}
+
+		if err := cmd.callback(cfg, param); err != nil {
+			fmt.Println(err)
+		}
+	}
+}
+
+func cleanInput(text string) []string {
+	return strings.Fields(strings.ToLower(text))
+}
+
+// a function rather than a variable to avoid an initialisation cycle:
+// commandHelp reads the commands, and the commands reference commandHelp
 func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
 		"exit": {
@@ -66,17 +108,4 @@ func getCommands() map[string]cliCommand {
 			callback:    commandPokedex,
 		},
 	}
-}
-
-func cleanInput(text string) []string {
-	var result []string
-
-	trimmed := strings.TrimSpace(text)
-	i := strings.Index(trimmed, " ")
-	for i > -1 {
-		result = append(result, strings.ToLower(trimmed[:i]))
-		trimmed = trimmed[i+1:]
-		i = strings.Index(trimmed, " ")
-	}
-	return append(result, strings.ToLower(trimmed))
 }

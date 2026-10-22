@@ -9,7 +9,7 @@ func commandCatch(cfg *config, param string) error {
 	if param == "" {
 		return errors.New("enter a valid pokemon name")
 	}
-	pokemonInfo, err := getPokemonInfo(cfg.pokemonInfoEndpoint + param)
+	pokemonInfo, err := cfg.pokeapiClient.GetPokemon(param)
 	if err != nil {
 		return err
 	}
